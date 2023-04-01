@@ -28,7 +28,7 @@ func main() {
 	)
 	router.GET("/todos", controller.GetTodos)
 
-	// run the router ton host and port specified in the /.env file
+	// run the router on host and port specified in the /.env file
 	err := router.Run(fmt.Sprintf("%s:%s", conf.Env.Host, conf.Env.Port))
 	if err != nil {
 		log.Fatal("application/main", err)

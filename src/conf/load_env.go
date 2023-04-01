@@ -19,7 +19,7 @@ type env struct {
 var IsLoaded = false
 
 func LoadEnv() {
-	// httpclients and Persistence layer needs the env vars
+	// the httpclient and the Gin server needs the env vars
 	// but we don't want to load them twice
 	if IsLoaded {
 		return
