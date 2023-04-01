@@ -18,21 +18,18 @@ func main() {
 	// load the env variables
 	conf.LoadEnv()
 
-	gin.SetMode(conf.Env.GinMode) // mode "debug" from .env
-
+	// GinMode is set to "debug" in the /.env file
+	gin.SetMode(conf.Env.GinMode)
 	router = gin.Default()
-	err := router.SetTrustedProxies(nil)
 
-	if err != nil {
-		log.Fatal("application/main", err)
-	}
-
+	// creates a controller that uses an httpclient to call https://jsonplaceholder.typicode.com/todos
 	controller := controller.NewController(
 		httpclient.NewClient(),
 	)
 	router.GET("/todos", controller.GetTodos)
 
-	err = router.Run(fmt.Sprintf("%s:%s", conf.Env.Host, conf.Env.Port))
+	// run the router ton host and port specified in the /.env file
+	err := router.Run(fmt.Sprintf("%s:%s", conf.Env.Host, conf.Env.Port))
 	if err != nil {
 		log.Fatal("application/main", err)
 	}
