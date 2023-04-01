@@ -2,15 +2,19 @@ package log
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
 )
 
 var l *logger = NewLogger()
+
+const API = "logger test"
 
 type logger struct {
 	logger zerolog.Logger
@@ -18,26 +22,50 @@ type logger struct {
 }
 
 func NewLogger() *logger {
+	loadEnvFile()
+	println("ENV " + os.Getenv("APP_ENV"))
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	var zlog zerolog.Logger
-	zlog = zerolog.New(
-		zerolog.ConsoleWriter{
-			Out:        os.Stderr,
-			TimeFormat: time.RFC3339,
-			FormatLevel: func(i interface{}) string {
-				return strings.ToUpper(fmt.Sprintf("[%s]", i))
-			},
-			FormatMessage: func(i interface{}) string {
-				return fmt.Sprintf("| %s |", i)
-			},
-		}).
-		Level(zerolog.TraceLevel).
-		With().
-		Timestamp().
-		Logger()
+	if os.Getenv("APP_ENV") == "dev" {
+		zlog = zerolog.New(
+			zerolog.ConsoleWriter{
+				Out:        os.Stderr,
+				TimeFormat: time.RFC3339,
+				FormatLevel: func(i interface{}) string {
+					return strings.ToUpper(fmt.Sprintf("[%s]", i))
+				},
+				FormatMessage: func(i interface{}) string {
+					return fmt.Sprintf("| %s |", i)
+				},
+			}).
+			Level(zerolog.TraceLevel).
+			With().
+			Str("api", API).
+			Timestamp().
+			Logger()
 
+	} else { // prod
+		zlog = zerolog.New(os.Stdout).
+			Level(zerolog.InfoLevel).
+			With().
+			Timestamp().
+			Logger()
+	}
 	return &logger{
 		logger: zlog,
+	}
+}
+
+// TODO duplicate code needed cause
+// conf uses log but log need the env var to be loaded
+func loadEnvFile() {
+	curDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err, "banking jobs", "App", "gw - conf - LoadEnv - os.Getwd()")
+	}
+	loadErr := godotenv.Load(curDir + "/.env")
+	if loadErr != nil {
+		log.Fatal(err, "banking jobs", "conf - LoadEnv", "godotenv.Load("+curDir+"/.env\")")
 	}
 }
 
