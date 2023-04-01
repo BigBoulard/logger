@@ -1,4 +1,4 @@
-module github.com/BigBoulard/api-error-handling-and-logging
+module github.com/BigBoulard/logger
 
 go 1.20
 
