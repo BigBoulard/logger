@@ -25,16 +25,13 @@ func LoadEnv() {
 		return
 	}
 
-	// load the env vars
-	Env.AppMode = os.Getenv("APP_MODE")
-	Env.Host = os.Getenv("HOST")
-	Env.Port = os.Getenv("PORT")
-
+	// if not "prod"
 	if Env.AppMode != "prod" {
 		curDir, err := os.Getwd()
 		if err != nil {
 			log.Fatal(err, "conf", "LoadEnv", "error loading os.Getwd()")
 		}
+		// load the /.env file
 		loadErr := godotenv.Load(curDir + "/.env")
 		if loadErr != nil {
 			log.Fatal(loadErr, "conf", "LoadEnv", "can't load env file from current directory: "+curDir)
@@ -43,6 +40,11 @@ func LoadEnv() {
 	} else {
 		Env.GinMode = "release"
 	}
+
+	// load the env vars
+	Env.AppMode = os.Getenv("APP_MODE")
+	Env.Host = os.Getenv("HOST")
+	Env.Port = os.Getenv("PORT")
 
 	IsLoaded = true
 }

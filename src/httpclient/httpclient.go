@@ -1,10 +1,12 @@
-package httpcli
+package httpclient
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/BigBoulard/logger/src/conf"
+	"github.com/BigBoulard/logger/src/domain"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -12,35 +14,42 @@ type client struct {
 	Resty *resty.Client
 }
 
-type httpClient interface {
-	GetTodos()
+type HttpClient interface {
+	GetTodos() ([]domain.Todo, error)
 }
 
-func NewClient() httpClient {
+func NewClient() HttpClient {
 	conf.LoadEnv() // load env vars
 	r := resty.New()
-	r.SetDebug(conf.Env.AppMode)
+	if conf.Env.AppMode == "debug" { // Debug mode is taken from the env vars
+		r.SetDebug(true)
+	}
 	r.SetBaseURL("http://jsonplaceholder.typicode.com")
 
 	return &client{
 		Resty: r,
 	}
-	return &client{}
 }
 
-func (c *client) GetTodos() error {
+func (c *client) GetTodos() ([]domain.Todo, error) {
 	resp, err := c.Resty.
 		R().
 		SetHeader("Accept", "application/json").
-		Get("/todo/1")
+		Get("/todos")
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if resp.StatusCode() > 399 {
-		return errors.New(fmt.Sprintf("%s - an error occurred", resp.StatusCode()))
+		return nil, errors.New(fmt.Sprintf("%d - an error occurred", resp.StatusCode()))
 	}
 
-	return nil
+	var todos []domain.Todo
+	err = json.Unmarshal(resp.Body(), &todos)
+	if err != nil {
+		return nil, err
+	}
+
+	return todos, nil
 }
