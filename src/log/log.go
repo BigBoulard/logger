@@ -56,8 +56,8 @@ func NewLogger() *logger {
 	}
 }
 
-// TODO duplicate code needed cause
-// conf uses log but log need the env var to be loaded
+// PROBLEM: I need to duplicate loadEnvFile() from conf.load_env.go
+// because conf uses log ... but conversely, log need conf cause it needs the env var
 func loadEnvFile() {
 	curDir, err := os.Getwd()
 	if err != nil {
