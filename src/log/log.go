@@ -14,7 +14,7 @@ import (
 
 var l *logger = NewLogger()
 
-const API = "logger test"
+const API = "test api"
 
 type logger struct {
 	logger zerolog.Logger
@@ -23,7 +23,7 @@ type logger struct {
 
 func NewLogger() *logger {
 	loadEnvFile()
-	println("ENV " + os.Getenv("APP_ENV"))
+	// println("ENV " + os.Getenv("APP_ENV"))
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	var zlog zerolog.Logger
 	if os.Getenv("APP_ENV") == "dev" {
@@ -61,11 +61,11 @@ func NewLogger() *logger {
 func loadEnvFile() {
 	curDir, err := os.Getwd()
 	if err != nil {
-		log.Fatal(err, "banking jobs", "App", "gw - conf - LoadEnv - os.Getwd()")
+		log.Fatal(err, API, "App", "gw - conf - LoadEnv - os.Getwd()")
 	}
 	loadErr := godotenv.Load(curDir + "/.env")
 	if loadErr != nil {
-		log.Fatal(err, "banking jobs", "conf - LoadEnv", "godotenv.Load("+curDir+"/.env\")")
+		log.Fatal(err, API, "conf - LoadEnv", "godotenv.Load("+curDir+"/.env\")")
 	}
 }
 
