@@ -18,6 +18,10 @@ func main() {
 	// load the env variables
 	conf.LoadEnv()
 
+	// instanciate the logger
+	log.NewLogger()
+	log.Info("/main", "starting application")
+
 	// GinMode is set to "debug" in the /.env file
 	gin.SetMode(conf.Env.GinMode)
 	router = gin.Default()
@@ -31,6 +35,6 @@ func main() {
 	// run the router on host and port specified in the /.env file
 	err := router.Run(fmt.Sprintf("%s:%s", conf.Env.Host, conf.Env.Port))
 	if err != nil {
-		log.Fatal("application/main", err)
+		log.Fatal("/main", err)
 	}
 }

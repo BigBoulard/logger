@@ -2,17 +2,15 @@ package log
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
 )
 
-var l *logger = NewLogger()
+var l *logger
 
 const API = "test api"
 
@@ -21,8 +19,7 @@ type logger struct {
 	// see https://github.com/rs/zerolog#leveled-logging
 }
 
-func NewLogger() *logger {
-	loadEnvFile()
+func NewLogger() {
 	// println("ENV " + os.Getenv("APP_ENV"))
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	var zlog zerolog.Logger
@@ -51,22 +48,16 @@ func NewLogger() *logger {
 			Timestamp().
 			Logger()
 	}
-	return &logger{
+	l = &logger{
 		logger: zlog,
 	}
 }
 
-// PROBLEM: I need to duplicate loadEnvFile() from conf.load_env.go
-// because conf uses log ... but conversely, log need conf cause it needs the env var
-func loadEnvFile() {
-	curDir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err, API, "App", "gw - conf - LoadEnv - os.Getwd()")
-	}
-	loadErr := godotenv.Load(curDir + "/.env")
-	if loadErr != nil {
-		log.Fatal(err, API, "conf - LoadEnv", "godotenv.Load("+curDir+"/.env\")")
-	}
+func Info(path string, msg string) {
+	l.logger.
+		Info().
+		Str("path", path).
+		Msg(msg)
 }
 
 func Error(path string, err error) {
